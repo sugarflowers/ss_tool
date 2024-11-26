@@ -4,7 +4,8 @@ use std::{
     sync::{Arc, Mutex},
     path::PathBuf,
 };
-use capture::sstest;
+use rfd::{FileDialog, MessageDialog};
+use capture::{check_paths, sstest};
 
 
 #[derive(serde::Deserialize, serde::Serialize)]
@@ -65,13 +66,22 @@ impl eframe::App for TemplateApp {
                 //.max_col_width(80.0)
                 .show(ui, |ui| {
 
+                    // select folder
                     let ib = ui.add_sized([24.0, 24.0],
                         egui::ImageButton::new(egui::Image::new(egui::include_image!("img/folder_24.png")))
                     );
                     if ib.clicked() {
-                        self.interval = 10.0;
+                        let res = FileDialog::new()
+                            .set_directory(&*self.save_path.lock().unwrap())
+                            .set_title("Select a directry for captures")
+                            .pick_folder();
+
+                        if res != None {
+                            *self.save_path.lock().unwrap() = res.unwrap();
+                        }
                     }
 
+                    // recording 
                     if *self.recording.lock().unwrap() == false {
                         let ib = ui.add_sized([24.0, 24.0],
                             egui::ImageButton::new(egui::Image::new(egui::include_image!("img/rec_24.png")))
@@ -80,18 +90,23 @@ impl eframe::App for TemplateApp {
                             if *self.recording.lock().unwrap() == false {
                                 *self.recording.lock().unwrap() = true;
                                 let rec = Arc::clone(&self.recording);
-                                let save_path = Arc::clone(&self.save_path);
                                 let inter = (self.interval * 1000.0) as u64;
+
+
+                                let save_path = self.save_path.lock().unwrap();
+                                let mut save_path = save_path.clone();
+                                check_paths(&mut save_path).unwrap();
+
+
+                                let save_path = Arc::clone(&self.save_path);
+
                                 thread::spawn(move || {
 
                                     // recording loop
                                     while *rec.lock().unwrap() {
                                         thread::sleep(Duration::from_millis(inter));    
-                                        //*rec.lock().unwrap() = false; //for test
                                         sstest(&save_path.lock().unwrap());
-                                        println!("rec");
                                     }
-                                    println!("exit loop");
 
                                 });
                             }
@@ -106,9 +121,8 @@ impl eframe::App for TemplateApp {
                     }
 
 
-                    ui.add_sized([200.0, 24.0],
-                            egui::Slider::new(&mut self.interval, 1.0..=60.0).text("Interval")
-                    );
+                    //ui.add_sized([200.0, 24.0],
+                    ui.add( egui::Slider::new(&mut self.interval, 1.0..=60.0).text("Interval") );
 
                 });
         });
