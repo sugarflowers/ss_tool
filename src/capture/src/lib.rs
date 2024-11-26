@@ -1,10 +1,17 @@
 use screenshots::Screen;
 use anyhow::Result;
-use std::path::PathBuf;
+use std::{
+    path::PathBuf,
+    fs,
+};
 
-pub fn checkss() -> Result<usize> {
+pub fn check_paths(dest: &mut PathBuf) -> Result<()> {
     let screens = Screen::all()?;
-    Ok(screens.len())
+    for idx in 0..screens.len() {
+        dest.push(format!("{idx}"));
+        fs::create_dir_all(&mut *dest).unwrap();
+    }
+    Ok(())
 }
 
 pub fn screenshot(dest: &str) -> Result<()> {
