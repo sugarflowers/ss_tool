@@ -1,5 +1,5 @@
 use screenshots::Screen;
-use anyhow::Result;
+use anyhow::{Result, anyhow};
 use glob::glob;
 use std::{
     path::PathBuf,
@@ -12,7 +12,7 @@ fn count_files(dir: &str) -> Result<usize> {
     for entry in glob(&pattern)? {
         match entry {
             Ok(_) => cnt += 1,
-            Err(e) => eprint!("error {e:?}"),
+            Err(e) => return Err(anyhow!(e)),
         }
     }
     Ok(cnt)
