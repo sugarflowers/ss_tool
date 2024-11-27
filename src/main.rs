@@ -23,7 +23,7 @@ fn main() -> eframe::Result {
         native_options,
         Box::new(|cc| { 
             egui_extras::install_image_loaders(&cc.egui_ctx);
-            Ok(Box::new(ss_tool::TemplateApp::new(cc))
+            Ok(Box::new(ss_tool::SSTool::new(cc))
         ) }),
     )
 }
@@ -54,7 +54,7 @@ fn main() {
             .start(
                 canvas,
                 web_options,
-                Box::new(|cc| Ok(Box::new(ss_tool::TemplateApp::new(cc)))),
+                Box::new(|cc| Ok(Box::new(ss_tool::SSTool::new(cc)))),
             )
             .await;
 

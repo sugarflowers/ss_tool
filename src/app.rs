@@ -4,13 +4,14 @@ use std::{
     sync::{Arc, Mutex},
     path::PathBuf,
 };
-use rfd::{FileDialog, MessageDialog};
+//use rfd::{FileDialog, MessageDialog};
+use rfd::FileDialog;
 use capture::{check_paths, screen_shot};
 
 
 #[derive(serde::Deserialize, serde::Serialize)]
 #[serde(default)]
-pub struct TemplateApp {
+pub struct SSTool {
     interval: f32,
     save_path: Arc<Mutex<PathBuf>>,
 
@@ -20,7 +21,7 @@ pub struct TemplateApp {
 }
 
 
-impl Default for TemplateApp {
+impl Default for SSTool {
     fn default() -> Self {
         let mut default_path: PathBuf = std::env::current_dir().unwrap();
         default_path.push("capture");
@@ -34,7 +35,7 @@ impl Default for TemplateApp {
     }
 }
 
-impl TemplateApp {
+impl SSTool {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
         
         if let Some(storage) = cc.storage {
@@ -47,7 +48,7 @@ impl TemplateApp {
 
 
 
-impl eframe::App for TemplateApp {
+impl eframe::App for SSTool {
     
     fn save(&mut self, storage: &mut dyn eframe::Storage) {
         eframe::set_value(storage, eframe::APP_KEY, self);
@@ -97,14 +98,12 @@ impl eframe::App for TemplateApp {
 
 
                                 let save_path = Arc::clone(&self.save_path);
-                                //let mut save_path = self.save_path.lock().unwrap();
-
                                 thread::spawn(move || {
 
                                     // recording loop
                                     while *rec.lock().unwrap() {
                                         thread::sleep(Duration::from_millis(inter));    
-                                        screen_shot(&save_path.lock().unwrap());
+                                        let _ = screen_shot(&save_path.lock().unwrap());
                                     }
 
                                 });
@@ -120,10 +119,10 @@ impl eframe::App for TemplateApp {
                     }
 
 
-                    //ui.add_sized([200.0, 24.0],
                     ui.add_enabled(
-                            !*self.recording.lock().unwrap(),
-                            egui::Slider::new(&mut self.interval, 1.0..=60.0).text("Interval") );
+                        !*self.recording.lock().unwrap(),
+                        egui::Slider::new(&mut self.interval, 1.0..=60.0).text("Interval") 
+                    );
 
                 });
         });
