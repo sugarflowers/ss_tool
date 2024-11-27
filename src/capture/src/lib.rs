@@ -38,7 +38,7 @@ pub fn screen_shot(dest: &PathBuf) -> Result<()> {
             Ok(c) => c,
             Err(e) => return Err(anyhow!(e)),
         };
-        d.push(format!("{cnt}.png"));
+        d.push(format!("{cnt:06}.png"));
 
         let ds = d.to_string_lossy().to_string();
         screen.capture()?.save(&ds)?;
