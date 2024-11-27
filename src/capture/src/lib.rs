@@ -23,7 +23,7 @@ pub fn check_paths(dest: &mut PathBuf) -> Result<()> {
     for idx in 0..screens.len() {
         let mut d = dest.clone();
         d.push(format!("{idx}"));
-        fs::create_dir_all(&mut *d).unwrap();
+        fs::create_dir_all(&mut *d)?;
     }
     Ok(())
 }
@@ -34,7 +34,10 @@ pub fn screen_shot(dest: &PathBuf) -> Result<()> {
         let mut d = dest.clone();
         d.push(format!("{idx}"));
 
-        let cnt = count_files(&d.to_string_lossy().to_string()).unwrap();
+        let cnt = match count_files(&d.to_string_lossy().to_string()){
+            Ok(c) => c,
+            Err(e) => return Err(anyhow!(e)),
+        };
         d.push(format!("{cnt}.png"));
 
         let ds = d.to_string_lossy().to_string();
