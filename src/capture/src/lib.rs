@@ -2,7 +2,7 @@ use screenshots::Screen;
 use anyhow::Result;
 use glob::glob;
 use std::{
-    path::{PathBuf, Path},
+    path::PathBuf,
     fs,
 };
 
