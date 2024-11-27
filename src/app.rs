@@ -5,7 +5,7 @@ use std::{
     path::PathBuf,
 };
 use rfd::{FileDialog, MessageDialog};
-use capture::{check_paths, sstest};
+use capture::{check_paths, screen_shot};
 
 
 #[derive(serde::Deserialize, serde::Serialize)]
@@ -70,7 +70,7 @@ impl eframe::App for TemplateApp {
                     let ib = ui.add_sized([24.0, 24.0],
                         egui::ImageButton::new(egui::Image::new(egui::include_image!("img/folder_24.png")))
                     );
-                    if ib.clicked() {
+                    if ib.clicked() && !*self.recording.lock().unwrap() {
                         let res = FileDialog::new()
                             .set_directory(&*self.save_path.lock().unwrap())
                             .set_title("Select a directry for captures")
@@ -82,7 +82,7 @@ impl eframe::App for TemplateApp {
                     }
 
                     // recording 
-                    if *self.recording.lock().unwrap() == false {
+                    if !*self.recording.lock().unwrap() {
                         let ib = ui.add_sized([24.0, 24.0],
                             egui::ImageButton::new(egui::Image::new(egui::include_image!("img/rec_24.png")))
                         );
@@ -92,20 +92,19 @@ impl eframe::App for TemplateApp {
                                 let rec = Arc::clone(&self.recording);
                                 let inter = (self.interval * 1000.0) as u64;
 
-
-                                let save_path = self.save_path.lock().unwrap();
-                                let mut save_path = save_path.clone();
+                                let mut save_path = self.save_path.lock().unwrap();
                                 check_paths(&mut save_path).unwrap();
 
 
                                 let save_path = Arc::clone(&self.save_path);
+                                //let mut save_path = self.save_path.lock().unwrap();
 
                                 thread::spawn(move || {
 
                                     // recording loop
                                     while *rec.lock().unwrap() {
                                         thread::sleep(Duration::from_millis(inter));    
-                                        sstest(&save_path.lock().unwrap());
+                                        screen_shot(&save_path.lock().unwrap());
                                     }
 
                                 });
@@ -122,7 +121,9 @@ impl eframe::App for TemplateApp {
 
 
                     //ui.add_sized([200.0, 24.0],
-                    ui.add( egui::Slider::new(&mut self.interval, 1.0..=60.0).text("Interval") );
+                    ui.add_enabled(
+                            !*self.recording.lock().unwrap(),
+                            egui::Slider::new(&mut self.interval, 1.0..=60.0).text("Interval") );
 
                 });
         });
