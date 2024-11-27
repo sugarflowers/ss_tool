@@ -1,38 +1,45 @@
 use screenshots::Screen;
 use anyhow::Result;
+use glob::glob;
 use std::{
-    path::PathBuf,
+    path::{PathBuf, Path},
     fs,
 };
+
+fn count_files(dir: &str) -> Result<usize> {
+    let pattern = format!("{dir}/*.png");
+    let mut cnt = 0;
+    for entry in glob(&pattern)? {
+        match entry {
+            Ok(_) => cnt += 1,
+            Err(e) => eprint!("error {e:?}"),
+        }
+    }
+    Ok(cnt)
+}
 
 pub fn check_paths(dest: &mut PathBuf) -> Result<()> {
     let screens = Screen::all()?;
     for idx in 0..screens.len() {
-        dest.push(format!("{idx}"));
-        fs::create_dir_all(&mut *dest).unwrap();
+        let mut d = dest.clone();
+        d.push(format!("{idx}"));
+        fs::create_dir_all(&mut *d).unwrap();
     }
     Ok(())
 }
 
-pub fn screenshot(dest: &str) -> Result<()> {
+pub fn screen_shot(dest: &PathBuf) -> Result<()> {
     let screens = Screen::all()?;
     for (idx, screen) in screens.into_iter().enumerate() {
-        //ここでファイル名とかディレクトリとかに細工が必要だし
-        //なんならファイル名とか別に固定で決めちゃっていいのでは
-        println!("idx: {}", idx);
-        screen.capture()?.save(dest)?;
+        let mut d = dest.clone();
+        d.push(format!("{idx}"));
+
+        let cnt = count_files(&d.to_string_lossy().to_string()).unwrap();
+        d.push(format!("{cnt}.png"));
+
+        let ds = d.to_string_lossy().to_string();
+        screen.capture()?.save(&ds)?;
     }
     Ok(())
 }
 
-pub fn sstest(dest: &PathBuf) {
-    println!("{dest:?}");
-}
-
-/*
-fn main() {
-    let sss = checkss().unwrap();
-    println!("{sss}");
-    screenshot("test.png").unwrap();
-}
-*/
