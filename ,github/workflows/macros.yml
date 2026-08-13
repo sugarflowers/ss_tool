@@ -1,0 +1,59 @@
+name: Build All Platforms
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Build Windows
+        run: cargo build --release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-app
+          path: target/release/
+
+  linux-x86:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Build Linux x86_64
+        run: cargo build --release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-x86-app
+          path: target/release/
+
+  linux-arm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install ARM target
+        run: rustup target add aarch64-unknown-linux-gnu
+      - name: Install cross compiler
+        run: sudo apt-get update && sudo apt-get install -y gcc-aarch64-linux-gnu
+      - name: Build Linux ARM
+        run: cargo build --release --target aarch64-unknown-linux-gnu
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-arm-app
+          path: target/aarch64-unknown-linux-gnu/release/
+
+  macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Build macOS
+        run: cargo build --release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos-app
+          path: target/release/
