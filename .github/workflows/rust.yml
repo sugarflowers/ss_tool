@@ -9,6 +9,9 @@ jobs:
   windows:
     runs-on: windows-latest
     steps:
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.81.0
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
       - name: Build Windows
@@ -18,9 +21,13 @@ jobs:
           name: windows-app
           path: target/release/
 
+
   linux-x86:
     runs-on: ubuntu-latest
     steps:
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.81.0
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
       - name: Build Linux x86_64
@@ -33,6 +40,9 @@ jobs:
   linux-arm:
     runs-on: ubuntu-latest
     steps:
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.81.0
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
       - name: Install ARM target
@@ -49,6 +59,9 @@ jobs:
   macos:
     runs-on: macos-latest
     steps:
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.81.0
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
       - name: Build macOS
