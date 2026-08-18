@@ -24,6 +24,7 @@ log = "0.4"
 serde = { version = "1", features = ["derive"] }
 egui_extras = { version = "0.29.1", features=["all_loaders"] }
 capture = { path = "src/capture" }
+rfd = "0.17.2"
 
 # native:
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
@@ -46,7 +47,6 @@ opt-level = 2
 
 
 [patch.crates-io]
-
 # If you want to use the bleeding edge version of egui and eframe:
 # egui = { git = "https://github.com/emilk/egui", branch = "master" }
 # eframe = { git = "https://github.com/emilk/egui", branch = "master" }
